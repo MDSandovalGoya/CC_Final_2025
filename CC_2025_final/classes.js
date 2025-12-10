@@ -1,52 +1,66 @@
-// classes.js
-
 class TriangleParticle {
+  // Global color wheel value shared between ALL triangles
+  static nextHue = 0;
+
   constructor(x, y) {
     this.pos = createVector(x, y);
 
-    // Start tiny
     this.size = 1;
-
-    //  size large enough to fill whole canvas
     this.maxSize = max(width, height) * 1.8;
 
-    // Growth speed
-    this.growthRate = 6;
+    this.maxGrowth = 12;
+    this.minGrowth = 2;
 
-    this.hue = random(360);
-    // random webcam offset
+    // Assign this triangle the current hue
+    this.hue = TriangleParticle.nextHue;
+
+    // Move the wheel forward for the NEXT triangle
+    TriangleParticle.nextHue = (TriangleParticle.nextHue + 5) % 360;
+
+    // random video offset
     this.offX = random(-width * 0.5, width * 0.5);
     this.offY = random(-height * 0.5, height * 0.5);
   }
 
   update() {
-    this.rot += this.rotSpeed;
+    // do NOT rotate hue anymore — triangles keep their assigned color
+    // (this is what makes the gradient build over time)
 
-    // Expand until covering canvas
+    // distance-based growth speed
+    let center = createVector(width / 2, height / 2);
+    let distFromCenter = p5.Vector.dist(this.pos, center);
+
+    let growthSpeed = map(
+      distFromCenter,
+      0,
+      max(width, height) / 2,
+      this.maxGrowth,
+      this.minGrowth
+    );
+
     if (this.size < this.maxSize) {
-      this.size += this.growthRate;
+      this.size += growthSpeed;
     }
   }
 
   display(videoFrame) {
     push();
     translate(this.pos.x, this.pos.y);
-    
 
     drawingContext.save();
     drawingContext.beginPath();
+
     const s = this.size;
-//makes the shape
     drawingContext.moveTo(0, -s);
     drawingContext.lineTo(s, s);
     drawingContext.lineTo(-s, s);
     drawingContext.closePath();
     drawingContext.clip();
 
+    // use the triangle's assigned hue
     colorMode(HSB);
-    tint(this.hue, 255, 255, 200);
+    tint(this.hue, 255, 255, 255);
 
-    // centers the triangle so it grows outward
     imageMode(CENTER);
     let scale = max(width, height) * 2.5;
     image(videoFrame, this.offX, this.offY, scale, scale);
@@ -55,3 +69,4 @@ class TriangleParticle {
     pop();
   }
 }
+
