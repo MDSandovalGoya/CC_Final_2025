@@ -23,8 +23,7 @@ class TriangleParticle {
   }
 
   update() {
-    // do NOT rotate hue anymore — triangles keep their assigned color
-    // (this is what makes the gradient build over time)
+    // do NOT rotate hue anymore 
 
     // distance-based growth speed
     let center = createVector(width / 2, height / 2);
@@ -69,4 +68,5 @@ class TriangleParticle {
     pop();
   }
 }
+
 
